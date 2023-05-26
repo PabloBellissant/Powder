@@ -1,2 +1,6 @@
-list = [10,30,35]
-print(len(list))
+
+
+
+
+dict = {1 : "abc", 3 : "add"}
+

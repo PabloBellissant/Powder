@@ -1,5 +1,10 @@
+import random
+
 
 from Enum import *
+
+
+ambiantHeat = -10
 
 class particle:
     def __init__(self, particleId, x, y, temperature):
@@ -28,8 +33,7 @@ class particle:
 
         for i in range(8):
             friend = particlesDictCoordinate.get((x + checkList[i][0], y + checkList[i][1]))
-            if not friend == None:
-                friends.append(friend)
+            friends.append(friend)
         return friends
 
     def smoothTemp(self):
@@ -37,10 +41,16 @@ class particle:
 
         multiply = (1.1-getHeatConductivity(self.ID))*50
 
+        adder = 0
         friendsTemp = 0
+        if friends.__contains__(None):
+
+            adder = 1
+            friendsTemp = ambiantHeat
         for friendTemp in friends:
-            friendsTemp += friendTemp.getTemperature
-        friendsTemp /= (len(friends))
+            if not friendTemp == None:
+                friendsTemp += friendTemp.getTemperature
+        friendsTemp /= (len(friends)+adder)
         return ((self.getTemperature*multiply) + friendsTemp )/ (1+(1*multiply))
 
 
@@ -62,17 +72,30 @@ class particle:
     def getColor(self):
         return getColor(self.ID)
 
+    def isLiquid(self):
+        return isLiquid(self.ID)
+
+    def isSolid(self):
+        return isSolid(self.ID)
+
+    def isGaseous(self):
+        return isGaseous(self.ID)
+
+    def isPowder(self):
+        return isPowder(self.ID)
+
 
 
 particlesDictCoordinate = {}
 
 
 
-for i in range(100):
-    for p in range(50):
-        particlesDictCoordinate[(i + 5, p + 5)]=(particle(1, i+5, p+5, 20))
+for i in range(58):
+    for p in range(33):
+        particlesDictCoordinate[(i+20, p+10)]=(particle(1, i+20, p+10, 2))
 
-particlesDictCoordinate.get((50,25)).getTemperature = 1500
 
-particlesDictCoordinate.get((20,10)).getTemperature = -200
+particlesDictCoordinate.get((55,40)).getTemperature = 1000
+particlesDictCoordinate.get((60,10)).getTemperature = 1000
+
 
