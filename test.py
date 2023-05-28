@@ -1,6 +1,12 @@
 
 
 
+a = 1
+b = 2
 
-dict = {1 : "abc", 3 : "add"}
 
+a, b = b, a
+
+
+print(a)
+print(b)
