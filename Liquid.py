@@ -2,6 +2,7 @@ import random
 
 
 from particles import particlesNextCoordinate
+from particles import particlesDictCoordinate
 
 
 
@@ -39,25 +40,39 @@ def liquidNextPos(particle):
             particle.isBurning, p2.isBurning = p2.isBurning, particle.isBurning
 
 
-    else :
+    else:
         # Liquidity
 
-        liquidity = int(particle.getLiquidity()*10)
+        x = particle.getX
+        y = particle.getY
 
+        liquidity = int(particle.getLiquidity() * 8)
+        maxLeft = 0
+        maxRight = 0
+        # MAX LEFT
         for i in range(liquidity):
-            p4 = particle.getSingleFriend(-i, 0)
-            p5 = particle.getSingleFriend(i, 0)
+            if (particlesDictCoordinate.get((x-i - 1, y)) != None):
+                break
+        maxLeft = i + 1
 
-            if p4 == None or p5 == None:
-                x = particle.getX
-                y = particle.getY
-                rdm = random.randint(1, 2)
-                if rdm == 1: x -= i
-                else : x += i
-                if particlesNextCoordinate.get((x,y)) == None :
-                    particle.nextX = x
-                    particle.nextY = y
-                    particlesNextCoordinate[(x, y)] = particle
-                    break
+        #MAX RIGHT
+        for i in range(liquidity):
+            if(particlesDictCoordinate.get((x+i+1, y)) != None):
+                break
+        maxRight = i + 1
 
 
+
+
+        if maxLeft != 0 or maxRight != 0 :
+
+            rdm = random.randint(-maxLeft+1, maxRight-1)
+
+            x += rdm
+            y+= random.randint(0,3)
+
+
+        if particlesNextCoordinate.get((x, y)) == None:
+            particle.nextY = y
+            particle.nextX = x
+            particlesNextCoordinate[(x, y)] = particle
