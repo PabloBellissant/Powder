@@ -1,6 +1,5 @@
 
 
-
-
-dict = {1 : "abc", 3 : "add"}
-
+for i in range(10):
+    break
+print(i)

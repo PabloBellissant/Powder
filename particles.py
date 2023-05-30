@@ -4,7 +4,7 @@ import random
 from Enum import *
 
 
-ambiantHeat = -10
+ambiantHeat = 20
 
 class particle:
     def __init__(self, particleId, x, y, temperature):
@@ -36,22 +36,32 @@ class particle:
             friends.append(friend)
         return friends
 
+    def getSingleFriend(self, c1, c2):
+        return particlesDictCoordinate.get((self.getX + c1, self.getY + c2))
+
     def smoothTemp(self):
         friends = self.getFriends()
 
-        multiply = (1.1-getHeatConductivity(self.ID))*50
+        multiply = (1.01-getHeatConductivity(self.ID))*1000
 
-        adder = 0
+
+
+        noneCount = friends.count(None)
+
         friendsTemp = 0
-        if friends.__contains__(None):
-
-            adder = 1
-            friendsTemp = ambiantHeat
         for friendTemp in friends:
             if not friendTemp == None:
                 friendsTemp += friendTemp.getTemperature
-        friendsTemp /= (len(friends)+adder)
-        return ((self.getTemperature*multiply) + friendsTemp )/ (1+(1*multiply))
+
+        count = len(friends) - noneCount
+        if count != 0 :
+            friendsTemp /= count
+            multiply *= 1.5
+            return ((friendsTemp * 5) + ambiantHeat + (self.getTemperature * multiply*3)) / (6 + multiply*3)
+        else :
+            return (ambiantHeat + (self.getTemperature*multiply*5)) / (1+multiply*5)
+
+
 
 
     def getNewIdAtLowTemp(self):
@@ -84,18 +94,36 @@ class particle:
     def isPowder(self):
         return isPowder(self.ID)
 
+    def delete(self):
+        if particlesDictCoordinate.get((self.getX, self.getY)) != None:
+            particlesDictCoordinate.pop((self.getX, self.getY))
+
+    def getDensity(self):
+        return getDensity(self.ID)
+
+    def getLiquidity(self):
+        return getLiquidity(self.ID)
+
+
+
+
+def create(x, y, id, temperature):
+    if particlesDictCoordinate.get((x,y)) == None and particlesNextCoordinate.get((x,y)) == None:
+        particlesDictCoordinate[(x, y)] = particle(id, x, y, temperature)
+    if id == 0 : particlesDictCoordinate.get((x,y)).delete()
+
 
 
 particlesDictCoordinate = {}
+particlesNextCoordinate = {}
+particlesNextCoordinate = particlesDictCoordinate
 
 
 
-for i in range(58):
-    for p in range(33):
-        particlesDictCoordinate[(i+20, p+10)]=(particle(1, i+20, p+10, 2))
 
 
-particlesDictCoordinate.get((55,40)).getTemperature = 1000
-particlesDictCoordinate.get((60,10)).getTemperature = 1000
+
+
+
 
 
