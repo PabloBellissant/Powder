@@ -14,7 +14,8 @@ from gaseous import *
 
 
 
-pixelSize = 12
+
+pixelSize = 16
 
 
 pygame.init()
@@ -59,22 +60,22 @@ while run:
             run = False
 
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_UP] :
+        if keys[pygame.K_RIGHT] :
             if enum.get(id+1) != None and released:
                 id += 1
                 released = False
 
-        if keys[pygame.K_DOWN] :
+        if keys[pygame.K_LEFT] :
             if enum.get(id - 1) != None and released:
                 id -= 1
                 released = False
 
-        if keys[pygame.K_KP_PLUS]:
+        if keys[pygame.K_UP]:
             if size < 15 and released:
                 size +=1
                 released = False
 
-        if keys[pygame.K_KP_MINUS]:
+        if keys[pygame.K_DOWN]:
             if size > 1 and released:
                 size -=1
                 released = False
@@ -83,14 +84,14 @@ while run:
 
 
 
-        if not keys[pygame.K_KP_MINUS] and not keys[pygame.K_KP_PLUS] and not keys[pygame.K_DOWN] and not keys[pygame.K_UP]: released = True
+        if not keys[pygame.K_UP] and not keys[pygame.K_DOWN] and not keys[pygame.K_RIGHT] and not keys[pygame.K_LEFT]: released = True
 
 
 
 
 
     a = win32api.GetKeyState(0x01)
-    b = win32api.GetKeyState(0x02)
+    #b = win32api.GetKeyState(0x02)
 
     if a != state_left:  # Button state changed
         state_left = a
@@ -102,7 +103,11 @@ while run:
     if down :
         for i in range((size*2)-1):
             for p in range((size*2)-1):
-                particles.create(mouseX-size+1+i, mouseY-size+1+p, id, Enum.getDefaultTemperature(id))
+                if isLiquid(id):
+                    rdm = bool(round(random.random()))
+                else: rdm = True
+                if rdm:
+                    particles.create(mouseX-size+1+i, mouseY-size+1+p, id, Enum.getDefaultTemperature(id))
 
 
 
@@ -119,21 +124,25 @@ while run:
 #CALCULATING
 
     for particle in list(particlesDictCoordinate.values()):
+
         # TEMPERATURE
+
 
         particle.nextTemperature = particle.smoothTemp()
         if particle.getTemperature > particle.getWichTempHighId():
             particle.ID = particle.getNewIdAtHighTemp()
-        if particle.getTemperature < particle.getWichTempLowId():
+        elif particle.getTemperature < particle.getWichTempLowId():
             particle.ID = particle.getNewIdAtLowTemp()
 
 
         # Gravity
-        if particle.isLiquid():
+        if particle.isSolid():
+            pass
+        elif particle.isLiquid():
             liquidNextPos(particle)
-        if particle.isPowder():
+        elif particle.isPowder():
             powderextPos(particle)
-        if particle.isGaseous():
+        elif particle.isGaseous():
             gaseousNextPos(particle)
 
 
@@ -147,20 +156,26 @@ while run:
 
 #UPDATE ALL
 
-    toDelete = []
+
 
     for particle in list(particlesDictCoordinate.values()):
 
         #Delete if touch border
-        if particle.getX > (SCREEN_WIDTH - 140) / pixelSize -1 : particle.delete()
-        if particle.getX < 0 : particle.delete()
-        if particle.getY > (SCREEN_HEIGHT - 140) / pixelSize -1 : particle.delete()
-        if particle.getY < 0: particle.delete()
+        x = particle.getX
+        y = particle.getY
 
-        particlesDictCoordinate = particlesNextCoordinate
-        if particlesDictCoordinate.get((particle.getX, particle.getY)) != None :
-            del particlesDictCoordinate[(particle.getX, particle.getY)]
-            particlesDictCoordinate[(particle.nextX, particle.nextY)] = particle
+        if x > (SCREEN_WIDTH - 140) / pixelSize -1 : particle.delete()
+        if x < 0 : particle.delete()
+        if y > (SCREEN_HEIGHT - 140) / pixelSize -1 : particle.delete()
+        if y < 0: particle.delete()
+        #
+
+
+
+        if particlesDictCoordinate.get((x, y)) != None :
+            del particlesDictCoordinate[(x, y)]
+            particlesNextCoordinate[(particle.nextX, particle.nextY)] = particle
+
         particle.getX = particle.nextX
         particle.getY = particle.nextY
         particle.getTemperature = particle.nextTemperature
@@ -168,6 +183,7 @@ while run:
         particle.getConcentration = particle.nextConcentration
         particle.isBurning = particle.nextIsBurning
 
+    particlesDictCoordinate = particlesNextCoordinate
 
 
 

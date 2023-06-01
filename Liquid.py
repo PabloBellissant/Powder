@@ -12,27 +12,23 @@ def liquidNextPos(particle):
 
 
     x = particle.getX
-    y = particle.getY + 1
+    y = particle.getY
 
-    p2 = particle.getSingleFriend(0, 1)
+    p2 = particlesNextCoordinate.get((x, y+1))
 
-    if not p2 == None :
 
-        if random.randint(1,2) == 1:
-            if particle.getSingleFriend(-1, 1) == None: x -= 1
-            elif particle.getSingleFriend(1, 1) == None:x += 1
+    if p2 != None:
+
+
+        if particle.liquidDirection: # If Left
+            if particlesDictCoordinate.get((x-1, y)) == None: x -= round(random.random()+0.25)
+            else : particle.liquidDirection = False
         else:
-            if particle.getSingleFriend(1, 1) == None: x += 1
-            elif particle.getSingleFriend(-1, 1) == None:x -= 1
+            if particlesDictCoordinate.get((x+1, y)) == None: x += round(random.random()+0.25)
+            else : particle.liquidDirection = True
 
 
-
-    if particlesNextCoordinate.get((x,y)) == None :
-        particle.nextX = x
-        particle.nextY = y
-        particlesNextCoordinate[(x,y)] = particle
-
-    elif (p2.isLiquid() or p2.isGaseous() or p2.isPowder()) and p2.getDensity() < particle.getDensity():
+        if (p2.isLiquid() or p2.isGaseous() or p2.isPowder()) and p2.getDensity() < particle.getDensity():
             particle.ID, p2.ID = p2.ID, particle.ID
             particle.getPressure, p2.getPressure = p2.getPressure, particle.getPressure
             particle.getTemperature, p2.getTemperature = p2.getTemperature, particle.getTemperature
@@ -40,39 +36,18 @@ def liquidNextPos(particle):
             particle.isBurning, p2.isBurning = p2.isBurning, particle.isBurning
 
 
-    else:
-        # Liquidity
-
-        x = particle.getX
-        y = particle.getY
-
-        liquidity = int(particle.getLiquidity() * 8)
-        maxLeft = 0
-        maxRight = 0
-        # MAX LEFT
-        for i in range(liquidity):
-            if (particlesDictCoordinate.get((x-i - 1, y)) != None):
-                break
-        maxLeft = i + 1
-
-        #MAX RIGHT
-        for i in range(liquidity):
-            if(particlesDictCoordinate.get((x+i+1, y)) != None):
-                break
-        maxRight = i + 1
-
-
-
-
-        if maxLeft != 0 or maxRight != 0 :
-
-            rdm = random.randint(-maxLeft+1, maxRight-1)
-
-            x += rdm
-            y+= random.randint(0,3)
-
 
         if particlesNextCoordinate.get((x, y)) == None:
             particle.nextY = y
             particle.nextX = x
             particlesNextCoordinate[(x, y)] = particle
+
+
+
+
+    elif particlesDictCoordinate.get((x, y+1)) == None:
+
+        particle.nextX = x
+        particle.nextY = y+1
+        particlesNextCoordinate[(x,y+1)] = particle
+

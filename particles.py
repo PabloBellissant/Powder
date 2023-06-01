@@ -15,6 +15,10 @@ class particle:
         self.getPressure = 1
         self.getConcentration = 0
         self.isBurning = False
+#Liquid
+
+        self.liquidDirection = False # False = Right, True = Left (for some reason, more efficient than 0 or 1).
+
 # After
         self.nextX = self.getX
         self.nextY = self.getY
@@ -24,17 +28,13 @@ class particle:
         self.nextIsBurning = self.isBurning
 
     def getFriends(self):
-        checkList = [(-1,1),(0,1),(1,1),(0,-1),(1,0),(-1,-1),(-1,0),(1,-1)] # 8 positions to check
-
-        friends = []
 
         x = self.getX
         y = self.getY
 
-        for i in range(8):
-            friend = particlesDictCoordinate.get((x + checkList[i][0], y + checkList[i][1]))
-            friends.append(friend)
+        friends = [particlesDictCoordinate.get((x,y+1)), particlesDictCoordinate.get((x,y-1)), particlesDictCoordinate.get((x+1,y)), particlesDictCoordinate.get((x-1,y)),]
         return friends
+
 
     def getSingleFriend(self, c1, c2):
         return particlesDictCoordinate.get((self.getX + c1, self.getY + c2))
@@ -52,6 +52,7 @@ class particle:
         for friendTemp in friends:
             if not friendTemp == None:
                 friendsTemp += friendTemp.getTemperature
+
 
         count = len(friends) - noneCount
         if count != 0 :
@@ -97,6 +98,8 @@ class particle:
     def delete(self):
         if particlesDictCoordinate.get((self.getX, self.getY)) != None:
             particlesDictCoordinate.pop((self.getX, self.getY))
+        if particlesNextCoordinate.get((self.getX, self.getY)) != None:
+            particlesNextCoordinate.pop((self.getX, self.getY))
 
     def getDensity(self):
         return getDensity(self.ID)
@@ -107,10 +110,14 @@ class particle:
 
 
 
+
+
 def create(x, y, id, temperature):
-    if particlesDictCoordinate.get((x,y)) == None and particlesNextCoordinate.get((x,y)) == None:
-        particlesDictCoordinate[(x, y)] = particle(id, x, y, temperature)
-    if id == 0 : particlesDictCoordinate.get((x,y)).delete()
+    if particlesNextCoordinate.get((x,y)) == None:
+        particlesNextCoordinate[(x, y)] = particle(id, x, y, temperature)
+    if id == 0 : particlesNextCoordinate.get((x,y)).delete()
+
+
 
 
 
